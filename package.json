@@ -1,0 +1,183 @@
+{
+  "name": "vs-jb-git",
+  "displayName": "vs-jb-git",
+  "description": "Git extension for vscode like git extension in Jetbrains IDE",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onView:jbGitBranches",
+    "onView:jbGitCommits",
+    "onView:jbGitChanges"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "panel": [
+        {
+          "id": "jbGitPanel",
+          "title": "JBGit",
+          "icon": "media/jb-git.svg"
+        }
+      ]
+    },
+    "views": {
+      "jbGitPanel": [
+        {
+          "id": "jbGitBranches",
+          "name": "Branches"
+        },
+        {
+          "id": "jbGitCommits",
+          "name": "Commits"
+        },
+        {
+          "id": "jbGitChanges",
+          "name": "Changes"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "vs-jb-git.helloWorld",
+        "title": "Hello World"
+      },
+      {
+        "command": "vs-jb-git.refresh",
+        "title": "Refresh"
+      },
+      {
+        "command": "vs-jb-git.branch.checkout",
+        "title": "Checkout"
+      },
+      {
+        "command": "vs-jb-git.branch.newFrom",
+        "title": "New Branch from Branch..."
+      },
+      {
+        "command": "vs-jb-git.branch.checkoutAndRebase",
+        "title": "Checkout and Rebase onto Current"
+      },
+      {
+        "command": "vs-jb-git.branch.compareWithCurrent",
+        "title": "Compare with Current"
+      },
+      {
+        "command": "vs-jb-git.branch.showDiffWithWorkingTree",
+        "title": "Show Diff with Working Tree"
+      },
+      {
+        "command": "vs-jb-git.branch.rebaseCurrentOnto",
+        "title": "Rebase Current onto Branch"
+      },
+      {
+        "command": "vs-jb-git.branch.mergeIntoCurrent",
+        "title": "Merge Branch into Current"
+      },
+      {
+        "command": "vs-jb-git.branch.update",
+        "title": "Update"
+      },
+      {
+        "command": "vs-jb-git.branch.push",
+        "title": "Push..."
+      },
+      {
+        "command": "vs-jb-git.branch.rename",
+        "title": "Rename..."
+      },
+      {
+        "command": "vs-jb-git.branch.delete",
+        "title": "Delete"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "vs-jb-git.refresh",
+          "when": "view == jbGitBranches",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "vs-jb-git.branch.checkout",
+          "when": "view == jbGitBranches && (viewItem == localBranch || viewItem == remoteBranch)",
+          "group": "navigation@1"
+        },
+        {
+          "command": "vs-jb-git.branch.newFrom",
+          "when": "view == jbGitBranches && (viewItem == localBranch || viewItem == remoteBranch || viewItem == currentBranch)",
+          "group": "navigation@2"
+        },
+        {
+          "command": "vs-jb-git.branch.checkoutAndRebase",
+          "when": "view == jbGitBranches && (viewItem == localBranch || viewItem == remoteBranch)",
+          "group": "navigation@3"
+        },
+        {
+          "command": "vs-jb-git.branch.compareWithCurrent",
+          "when": "view == jbGitBranches && (viewItem == localBranch || viewItem == remoteBranch)",
+          "group": "compare@1"
+        },
+        {
+          "command": "vs-jb-git.branch.showDiffWithWorkingTree",
+          "when": "view == jbGitBranches && (viewItem == localBranch || viewItem == remoteBranch || viewItem == currentBranch)",
+          "group": "compare@2"
+        },
+        {
+          "command": "vs-jb-git.branch.rebaseCurrentOnto",
+          "when": "view == jbGitBranches && (viewItem == localBranch || viewItem == remoteBranch)",
+          "group": "git@1"
+        },
+        {
+          "command": "vs-jb-git.branch.mergeIntoCurrent",
+          "when": "view == jbGitBranches && (viewItem == localBranch || viewItem == remoteBranch)",
+          "group": "git@2"
+        },
+        {
+          "command": "vs-jb-git.branch.update",
+          "when": "view == jbGitBranches && (viewItem == localBranch || viewItem == remoteBranch || viewItem == currentBranch)",
+          "group": "remote@1"
+        },
+        {
+          "command": "vs-jb-git.branch.push",
+          "when": "view == jbGitBranches && (viewItem == localBranch || viewItem == remoteBranch || viewItem == currentBranch)",
+          "group": "remote@2"
+        },
+        {
+          "command": "vs-jb-git.branch.rename",
+          "when": "view == jbGitBranches && (viewItem == localBranch || viewItem == currentBranch)",
+          "group": "edit@1"
+        },
+        {
+          "command": "vs-jb-git.branch.delete",
+          "when": "view == jbGitBranches && viewItem == localBranch",
+          "group": "edit@2"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.110.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "22.x",
+    "typescript-eslint": "^8.56.1",
+    "eslint": "^9.39.3",
+    "typescript": "^5.9.3",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2"
+  }
+}
