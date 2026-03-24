@@ -1,10 +1,11 @@
 {
   "name": "vs-jb-git",
+  "publisher": "salexer27",
   "displayName": "vs-jb-git",
   "description": "Git extension for vscode like git extension in Jetbrains IDE",
-  "version": "0.0.1",
+  "version": "0.2.0",
   "engines": {
-    "vscode": "^1.74.0"
+    "vscode": "^1.110.0"
   },
   "categories": [
     "Other"
@@ -29,15 +30,18 @@
       "jbGitPanel": [
         {
           "id": "jbGitBranches",
-          "name": "Branches"
+          "name": "Branches",
+          "type": "webview"
         },
         {
           "id": "jbGitCommits",
-          "name": "Commits"
+          "name": "Commits",
+          "type": "webview"
         },
         {
           "id": "jbGitChanges",
-          "name": "Changes"
+          "name": "Changes",
+          "type": "webview"
         }
       ]
     },
@@ -47,52 +51,28 @@
         "title": "Hello World"
       },
       {
+        "command": "vs-jb-git.focusPanel",
+        "title": "JBGit: Focus JBGit"
+      },
+      {
+        "command": "vs-jb-git.focusCommits",
+        "title": "JBGit: Focus Commits"
+      },
+      {
+        "command": "vs-jb-git.togglePrimaryFocus",
+        "title": "JBGit: Toggle Primary Focus"
+      },
+      {
         "command": "vs-jb-git.refresh",
         "title": "Refresh"
-      },
+      }
+    ],
+    "keybindings": [
       {
-        "command": "vs-jb-git.branch.checkout",
-        "title": "Checkout"
-      },
-      {
-        "command": "vs-jb-git.branch.newFrom",
-        "title": "New Branch from Branch..."
-      },
-      {
-        "command": "vs-jb-git.branch.checkoutAndRebase",
-        "title": "Checkout and Rebase onto Current"
-      },
-      {
-        "command": "vs-jb-git.branch.compareWithCurrent",
-        "title": "Compare with Current"
-      },
-      {
-        "command": "vs-jb-git.branch.showDiffWithWorkingTree",
-        "title": "Show Diff with Working Tree"
-      },
-      {
-        "command": "vs-jb-git.branch.rebaseCurrentOnto",
-        "title": "Rebase Current onto Branch"
-      },
-      {
-        "command": "vs-jb-git.branch.mergeIntoCurrent",
-        "title": "Merge Branch into Current"
-      },
-      {
-        "command": "vs-jb-git.branch.update",
-        "title": "Update"
-      },
-      {
-        "command": "vs-jb-git.branch.push",
-        "title": "Push..."
-      },
-      {
-        "command": "vs-jb-git.branch.rename",
-        "title": "Rename..."
-      },
-      {
-        "command": "vs-jb-git.branch.delete",
-        "title": "Delete"
+        "command": "vs-jb-git.togglePrimaryFocus",
+        "key": "ctrl+alt+t",
+        "mac": "alt+t",
+        "when": "jbGit.focusedView == 'branches' || jbGit.focusedView == 'commits' || jbGit.focusedView == 'changes'"
       }
     ],
     "menus": {
@@ -101,65 +81,42 @@
           "command": "vs-jb-git.refresh",
           "when": "view == jbGitBranches",
           "group": "navigation"
-        }
-      ],
-      "view/item/context": [
-        {
-          "command": "vs-jb-git.branch.checkout",
-          "when": "view == jbGitBranches && (viewItem == localBranch || viewItem == remoteBranch)",
-          "group": "navigation@1"
         },
         {
-          "command": "vs-jb-git.branch.newFrom",
-          "when": "view == jbGitBranches && (viewItem == localBranch || viewItem == remoteBranch || viewItem == currentBranch)",
-          "group": "navigation@2"
+          "command": "vs-jb-git.refresh",
+          "when": "view == jbGitCommits",
+          "group": "navigation"
         },
         {
-          "command": "vs-jb-git.branch.checkoutAndRebase",
-          "when": "view == jbGitBranches && (viewItem == localBranch || viewItem == remoteBranch)",
-          "group": "navigation@3"
-        },
-        {
-          "command": "vs-jb-git.branch.compareWithCurrent",
-          "when": "view == jbGitBranches && (viewItem == localBranch || viewItem == remoteBranch)",
-          "group": "compare@1"
-        },
-        {
-          "command": "vs-jb-git.branch.showDiffWithWorkingTree",
-          "when": "view == jbGitBranches && (viewItem == localBranch || viewItem == remoteBranch || viewItem == currentBranch)",
-          "group": "compare@2"
-        },
-        {
-          "command": "vs-jb-git.branch.rebaseCurrentOnto",
-          "when": "view == jbGitBranches && (viewItem == localBranch || viewItem == remoteBranch)",
-          "group": "git@1"
-        },
-        {
-          "command": "vs-jb-git.branch.mergeIntoCurrent",
-          "when": "view == jbGitBranches && (viewItem == localBranch || viewItem == remoteBranch)",
-          "group": "git@2"
-        },
-        {
-          "command": "vs-jb-git.branch.update",
-          "when": "view == jbGitBranches && (viewItem == localBranch || viewItem == remoteBranch || viewItem == currentBranch)",
-          "group": "remote@1"
-        },
-        {
-          "command": "vs-jb-git.branch.push",
-          "when": "view == jbGitBranches && (viewItem == localBranch || viewItem == remoteBranch || viewItem == currentBranch)",
-          "group": "remote@2"
-        },
-        {
-          "command": "vs-jb-git.branch.rename",
-          "when": "view == jbGitBranches && (viewItem == localBranch || viewItem == currentBranch)",
-          "group": "edit@1"
-        },
-        {
-          "command": "vs-jb-git.branch.delete",
-          "when": "view == jbGitBranches && viewItem == localBranch",
-          "group": "edit@2"
+          "command": "vs-jb-git.refresh",
+          "when": "view == jbGitChanges",
+          "group": "navigation"
         }
       ]
+    },
+    "configuration": {
+      "title": "JBGit",
+      "properties": {
+        "jbGit.updateMethod": {
+          "type": "string",
+          "enum": [
+            "rebase",
+            "merge"
+          ],
+          "default": "rebase",
+          "description": "How the Update action synchronizes the current local branch with its upstream."
+        },
+        "jbGit.branchTaskUrl": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show a task link icon for local branches that are out of sync with their upstream."
+        },
+        "jbGit.branchTaskUrlTemplate": {
+          "type": "string",
+          "default": "",
+          "description": "URL template for branch tasks. Use {BRANCH} as a placeholder, for example https://jira.my-url.ru/browse/{BRANCH}."
+        }
+      }
     }
   },
   "scripts": {
