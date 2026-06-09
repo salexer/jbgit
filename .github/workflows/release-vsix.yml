@@ -54,8 +54,19 @@ jobs:
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const ref = `tags/${tag}`;
+            let tagExists = true;
 
             try {
+              await github.rest.git.getRef({ owner, repo, ref });
+            } catch (error) {
+              if (error.status !== 404) {
+                throw error;
+              }
+
+              tagExists = false;
+            }
+
+            if (tagExists) {
               await github.rest.git.updateRef({
                 owner,
                 repo,
@@ -63,11 +74,7 @@ jobs:
                 sha: context.sha,
                 force: true
               });
-            } catch (error) {
-              if (error.status !== 404) {
-                throw error;
-              }
-
+            } else {
               await github.rest.git.createRef({
                 owner,
                 repo,
