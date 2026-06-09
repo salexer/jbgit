@@ -365,6 +365,8 @@
 		}
 
 		const canEditLocal = branch.scope === 'local';
+		const currentBranch = findCurrentBranch(state.data.nodes || []);
+		const hasCurrentBranch = Boolean(currentBranch);
 		const primaryItems = [];
 		const secondaryItems = [];
 		const advancedItems = [];
@@ -399,14 +401,14 @@
 
 		if (!branch.isCurrent) {
 			secondaryItems.unshift(
-				{ label: 'Checkout and Rebase onto "{current}"', action: 'checkoutAndRebase', mnemonic: 'a' },
-				{ label: 'Compare with "{current}"', action: 'compareWithCurrent', mnemonic: 'o' }
+				{ label: 'Checkout and Rebase onto "{current}"', action: 'checkoutAndRebase', mnemonic: 'a', disabled: !hasCurrentBranch },
+				{ label: 'Compare with "{current}"', action: 'compareWithCurrent', mnemonic: 'o', disabled: !hasCurrentBranch }
 			);
 
 			if (canEditLocal) {
 				advancedItems.push(
-					{ label: 'Rebase "{current}" onto "{branch}"', action: 'rebaseCurrentOnto', mnemonic: 'b' },
-					{ label: 'Merge "{branch}" into "{current}"', action: 'mergeIntoCurrent', mnemonic: 'm' }
+					{ label: 'Rebase "{current}" onto "{branch}"', action: 'rebaseCurrentOnto', mnemonic: 'b', disabled: !hasCurrentBranch },
+					{ label: 'Merge "{branch}" into "{current}"', action: 'mergeIntoCurrent', mnemonic: 'm', disabled: !hasCurrentBranch }
 				);
 			}
 		}

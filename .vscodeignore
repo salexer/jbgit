@@ -1,5 +1,7 @@
 .vscode/**
 .vscode-test/**
+.github/**
+.git/**
 src/**
 .gitignore
 .yarnrc
@@ -9,3 +11,5 @@ vsc-extension-quickstart.md
 **/*.map
 **/*.ts
 **/.vscode-test.*
+out/test/**
+package-lock.json

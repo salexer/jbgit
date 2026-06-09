@@ -464,6 +464,74 @@ class BranchesWebviewProvider implements vscode.WebviewViewProvider {
 					await this.gitService.updateBranch(message.branchRef, message.isCurrent);
 					await vscode.window.showInformationMessage('[JBGit] Update completed');
 					return;
+				case 'push':
+					if (message.scope !== 'local') {
+						return;
+					}
+
+					await this.gitService.pushBranch(message.branchRef, message.isCurrent);
+					await vscode.window.showInformationMessage(`[JBGit] Pushed ${message.branchRef}`);
+					return;
+				case 'checkoutAndRebase': {
+					if (message.isCurrent) {
+						return;
+					}
+
+					const currentBranch = await this.gitService.getCurrentBranchOrThrow();
+					const confirmation = await vscode.window.showWarningMessage(
+						`Checkout ${message.branchRef} and rebase it onto ${currentBranch}?`,
+						{ modal: true },
+						'Checkout and Rebase'
+					);
+					if (confirmation !== 'Checkout and Rebase') {
+						return;
+					}
+
+					if (message.scope === 'remote') {
+						await this.gitService.checkoutRemoteBranch(message.branchRef);
+					} else {
+						await this.gitService.runGitOrThrow(['checkout', message.branchRef]);
+					}
+
+					await this.gitService.runGitOrThrow(['rebase', currentBranch]);
+					await vscode.window.showInformationMessage(`[JBGit] Rebased ${message.branchRef} onto ${currentBranch}`);
+					return;
+				}
+				case 'compareWithCurrent':
+					await this.gitService.openBranchDiffWithCurrent(message.branchRef);
+					return;
+				case 'showDiffWithWorkingTree':
+					await this.gitService.openBranchDiffWithWorkingTree(message.branchRef);
+					return;
+				case 'rebaseCurrentOnto': {
+					if (message.scope !== 'local' || message.isCurrent) {
+						return;
+					}
+
+					const currentBranch = await this.gitService.getCurrentBranchOrThrow();
+					const confirmation = await vscode.window.showWarningMessage(
+						`Rebase ${currentBranch} onto ${message.branchRef}?`,
+						{ modal: true },
+						'Rebase'
+					);
+					if (confirmation !== 'Rebase') {
+						return;
+					}
+
+					await this.gitService.runGitOrThrow(['rebase', message.branchRef]);
+					await vscode.window.showInformationMessage(`[JBGit] Rebased ${currentBranch} onto ${message.branchRef}`);
+					return;
+				}
+				case 'mergeIntoCurrent': {
+					if (message.scope !== 'local' || message.isCurrent) {
+						return;
+					}
+
+					const currentBranch = await this.gitService.getCurrentBranchOrThrow();
+					await this.gitService.runGitOrThrow(['merge', '--no-edit', message.branchRef]);
+					await vscode.window.showInformationMessage(`[JBGit] Merged ${message.branchRef} into ${currentBranch}`);
+					return;
+				}
 				case 'forceUpdate':
 					if (message.scope !== 'local') {
 						return;
@@ -1223,6 +1291,41 @@ class GitBranchService {
 		await this.runGitOrThrow(['checkout', '--track', remoteRef]);
 	}
 
+	public async getCurrentBranchOrThrow(): Promise<string> {
+		const currentBranch = (await this.runGitOrThrow(['branch', '--show-current'])).trim();
+		if (!currentBranch) {
+			throw new Error('Current branch is not available in detached HEAD.');
+		}
+
+		return currentBranch;
+	}
+
+	public async pushBranch(branchRef: string, isCurrent: boolean): Promise<void> {
+		const upstream = await this.getBranchUpstream(branchRef, isCurrent);
+		if (!upstream) {
+			await this.runGitOrThrow(['push', '-u', 'origin', branchRef]);
+			return;
+		}
+
+		const remoteBranch = this.parseRemoteBranchRef(upstream);
+		if (!remoteBranch) {
+			throw new Error(`Unable to parse upstream branch ${upstream}.`);
+		}
+
+		await this.runGitOrThrow(['push', remoteBranch.remote, `${branchRef}:${remoteBranch.branch}`]);
+	}
+
+	public async openBranchDiffWithCurrent(branchRef: string): Promise<void> {
+		const currentBranch = await this.getCurrentBranchOrThrow();
+		const diff = await this.runGitOrThrow(['diff', `${currentBranch}..${branchRef}`]);
+		await this.openDiffDocument(diff);
+	}
+
+	public async openBranchDiffWithWorkingTree(branchRef: string): Promise<void> {
+		const diff = await this.runGitOrThrow(['diff', branchRef]);
+		await this.openDiffDocument(diff);
+	}
+
 	public async runGitOrThrow(args: string[], cwdOverride?: string): Promise<string> {
 		const cwd = cwdOverride ?? this.getWorkspaceRoot();
 		if (!cwd) {
@@ -1309,6 +1412,26 @@ class GitBranchService {
 	private getLocalNameFromRemoteRef(remoteRef: string): string {
 		const parts = remoteRef.split('/');
 		return parts.slice(1).join('/') || remoteRef;
+	}
+
+	private parseRemoteBranchRef(ref: string): { remote: string; branch: string } | undefined {
+		const separatorIndex = ref.indexOf('/');
+		if (separatorIndex <= 0 || separatorIndex === ref.length - 1) {
+			return undefined;
+		}
+
+		return {
+			remote: ref.slice(0, separatorIndex),
+			branch: ref.slice(separatorIndex + 1)
+		};
+	}
+
+	private async openDiffDocument(diff: string): Promise<void> {
+		const document = await vscode.workspace.openTextDocument({
+			content: diff || 'No diff.',
+			language: 'diff'
+		});
+		await vscode.window.showTextDocument(document, { preview: false });
 	}
 
 	private async getCurrentBranchUpstream(): Promise<string | undefined> {

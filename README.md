@@ -1,71 +1,73 @@
-# vs-jb-git README
+# JBGit
 
-This is the README for your extension "vs-jb-git". After writing up a brief description, we recommend including the following sections.
+JBGit is a Git panel for VS Code, Cursor, Windsurf, and other VS Code-compatible IDEs. It is inspired by the Git tool windows in JetBrains IDEs and focuses on fast branch, commit, and change navigation inside one bottom panel.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+- `Branches` view with local and remote branch trees, upstream state, task links, and context actions.
+- Branch actions for checkout, push, update, force update, rename, delete, compare, merge, and rebase workflows.
+- `Commits` view with branch-scoped log browsing, smart search filters, and commit actions.
+- `Changes` view for the selected commit, with tree/list modes and native VS Code diff opening.
+- Keyboard-friendly focus switching between JBGit views.
+- Automatic refresh when Git metadata changes.
 
-For example if there is an image subfolder under your extension project workspace:
+## Installation
 
-\!\[feature X\]\(images/feature-x.png\)
+Download the latest `.vsix` from [GitHub Releases](https://github.com/salexer/jbgit/releases), then install it in your IDE:
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+- VS Code: run `Extensions: Install from VSIX...` from the Command Palette.
+- Cursor and other compatible IDEs: use the same VSIX install command if available.
+- CLI: run `code --install-extension path/to/vs-jb-git.vsix`.
 
-## Requirements
+## Settings
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+The extension contributes these settings:
 
-## Extension Settings
+- `jbGit.updateMethod`: choose whether branch update uses `rebase` or `merge`.
+- `jbGit.branchTaskUrl`: enable task links for branch names like `ROD-123`.
+- `jbGit.branchTaskUrlTemplate`: URL template for task links, for example `https://jira.example.com/browse/{BRANCH}`.
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+## Development
 
-For example:
+```sh
+npm ci
+npm run compile
+npm run lint
+```
 
-This extension contributes the following settings:
+Build a local VSIX package:
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+```sh
+npm run package:vsix -- --out dist/vs-jb-git.vsix
+```
 
-## Known Issues
+## Release Automation
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+Every push to `main` runs the GitHub Actions workflow in `.github/workflows/release-vsix.yml`.
+
+The workflow:
+
+- installs dependencies with `npm ci`;
+- compiles and lints the extension;
+- packages a `.vsix` file;
+- publishes the package to the rolling GitHub Release tagged `main-latest`.
+
+The `main-latest` release is replaced on every successful `main` build, so the Releases page always contains a fresh installable VSIX from the current main branch.
+
+## Known Limitations
+
+- The UI is implemented with custom webviews, so some interactions intentionally mimic VS Code instead of using native tree controls.
+- Native diff behavior can vary slightly between VS Code-compatible IDEs.
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
+### 0.2.1
 
-### 1.0.0
+- Completed branch context actions for push, compare, merge, and rebase workflows.
+- Added automated VSIX release packaging for the `main` branch.
+- Updated project metadata and installation documentation.
 
-Initial release of ...
+### 0.2.0
 
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+- Added the JBGit panel with `Branches`, `Commits`, and `Changes`.
+- Added branch task links, branch actions, smart commit search, and native diff integration.

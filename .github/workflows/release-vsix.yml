@@ -1,0 +1,91 @@
+name: Release VSIX
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release-vsix:
+    name: Build and publish VSIX
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Compile
+        run: npm run compile
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Read package metadata
+        id: package
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const pkg = require('./package.json');
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `name=${pkg.name}\n`);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `version=${pkg.version}\n`);
+          NODE
+
+      - name: Package VSIX
+        run: npm run package:vsix -- --out "dist/${{ steps.package.outputs.name }}-${{ steps.package.outputs.version }}.vsix"
+
+      - name: Move rolling release tag
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const tag = 'main-latest';
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const ref = `tags/${tag}`;
+
+            try {
+              await github.rest.git.updateRef({
+                owner,
+                repo,
+                ref,
+                sha: context.sha,
+                force: true
+              });
+            } catch (error) {
+              if (error.status !== 404) {
+                throw error;
+              }
+
+              await github.rest.git.createRef({
+                owner,
+                repo,
+                ref: `refs/${ref}`,
+                sha: context.sha
+              });
+            }
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: main-latest
+          target_commitish: ${{ github.sha }}
+          name: Latest main VSIX
+          body: |
+            Automated VSIX build from the latest `main` branch commit.
+
+            Commit: ${{ github.sha }}
+          files: dist/*.vsix
+          fail_on_unmatched_files: true
+          make_latest: true

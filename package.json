@@ -1,15 +1,31 @@
 {
   "name": "vs-jb-git",
   "publisher": "salexer27",
-  "displayName": "vs-jb-git",
-  "description": "Git extension for vscode like git extension in Jetbrains IDE",
-  "version": "0.2.0",
+  "displayName": "JBGit",
+  "description": "JetBrains-like Git panel for VS Code and compatible IDEs.",
+  "version": "0.2.1",
   "engines": {
-    "vscode": "^1.110.0"
+    "vscode": "^1.105.0"
   },
   "categories": [
     "Other"
   ],
+  "keywords": [
+    "git",
+    "jetbrains",
+    "branches",
+    "commits",
+    "vscode",
+    "cursor"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/salexer/jbgit.git"
+  },
+  "homepage": "https://github.com/salexer/jbgit#readme",
+  "bugs": {
+    "url": "https://github.com/salexer/jbgit/issues"
+  },
   "activationEvents": [
     "onView:jbGitBranches",
     "onView:jbGitCommits",
@@ -125,10 +141,11 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src",
+    "package:vsix": "node -e \"require('fs').mkdirSync('dist', { recursive: true })\" && npx --yes @vscode/vsce@3.9.2 package",
     "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/vscode": "^1.110.0",
+    "@types/vscode": "^1.105.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "22.x",
     "typescript-eslint": "^8.56.1",
